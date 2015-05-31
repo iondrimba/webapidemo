@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -142,6 +143,21 @@ namespace WebAPIDemo.Tests.Controllers
             var result = controller.GetRawNotFoundAsync(10).Result;
 
             Assert.AreEqual(result.StatusCode, HttpStatusCode.NotFound);
+        }
+
+
+        [TestMethod]
+        public void TestGetHttpResponseMessageCustomException()
+        {
+            UserController controller = new UserController();
+            controller = SetupRequest(controller) as UserController;
+
+            var result = controller.GetRawExceptionAsync().Result;
+            string content = result.Content.ReadAsStringAsync().Result;
+            HttpError error = JsonConvert.DeserializeObject<HttpError>(content);
+
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.BadRequest);
+            Assert.AreEqual(error.Message, "Sample exception");
         }
 
 

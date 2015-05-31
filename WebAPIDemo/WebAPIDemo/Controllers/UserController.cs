@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -93,10 +94,10 @@ namespace WebAPIDemo.Controllers
             await Task.Delay(1000);
 
             IAppUser user = _dataSource.Where(p => p.Id == id).FirstOrDefault();
-            var result = Request.CreateResponse(HttpStatusCode.OK, _dataSource); 
+            var result = Request.CreateResponse(HttpStatusCode.OK, _dataSource);
 
             if (user == null)
-            {                
+            {
                 result = new HttpResponseMessage(HttpStatusCode.NotFound)
                 {
                     Content = new StringContent(string.Empty),
@@ -105,6 +106,20 @@ namespace WebAPIDemo.Controllers
             }
 
             return result;
+        }
+
+        public async Task<HttpResponseMessage> GetRawExceptionAsync()
+        {
+            await Task.Delay(1000);
+
+            try
+            {
+                throw new Exception("Sample exception");
+            }
+            catch (System.Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
         }
     }
 }
