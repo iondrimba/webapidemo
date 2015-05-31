@@ -21,6 +21,12 @@ namespace WebAPIDemo.Controllers
 
         public UserController()
         {
+            _dataSource = new List<IAppUser>();
+            _dataSource.Add(new AppUserBase { Name = "User1", Email = "user1@demo.com", Id = 1 });
+            _dataSource.Add(new AppUserBase { Name = "User2", Email = "user2@demo.com", Id = 2 });
+            _dataSource.Add(new AppUserBase { Name = "User3", Email = "user3@demo.com", Id = 3 });
+
+            UserController.DataSource = _dataSource;
         }
 
         // GET: api/User
@@ -59,14 +65,16 @@ namespace WebAPIDemo.Controllers
             return _dataSource;
         }
 
-        public async Task<IHttpActionResult> GetAsync()
+        [HttpGet]
+        public async Task<IHttpActionResult> All()
         {
             await Task.Delay(1000);
 
             return Ok(_dataSource);
         }
 
-        public async Task<IHttpActionResult> GetAsync(int id)
+        [HttpGet]
+        public async Task<IHttpActionResult> ById(int id)
         {
             await Task.Delay(1000);
 

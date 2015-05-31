@@ -77,7 +77,7 @@ namespace WebAPIDemo.Tests.Controllers
             IAppUser result = controller.Post(newUser);
 
             Assert.AreEqual(result, newUser);
-            Assert.AreNotEqual(currentCout, collection.Count);
+            Assert.AreNotEqual(currentCout, UserController.DataSource);
         }
 
         [TestMethod]
@@ -107,7 +107,7 @@ namespace WebAPIDemo.Tests.Controllers
         {
             UserController controller = new UserController();
             controller = SetupRequest(controller) as UserController;
-            var result = controller.GetAsync().Result;
+            var result = controller.All().Result;
 
             Assert.IsInstanceOfType(result, typeof(System.Web.Http.Results.OkNegotiatedContentResult<IList<IAppUser>>));
         }
@@ -118,7 +118,7 @@ namespace WebAPIDemo.Tests.Controllers
             UserController controller = new UserController();
             controller = SetupRequest(controller) as UserController;
 
-            var result = controller.GetAsync(10).Result;
+            var result = controller.ById(10).Result;
 
             Assert.IsInstanceOfType(result, typeof(System.Web.Http.Results.NotFoundResult));
         }

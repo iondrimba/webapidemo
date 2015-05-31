@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{95855B
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPISelfHost", "WebAPISelfHost\WebAPISelfHost.csproj", "{14E7E4B1-99FA-41C0-8754-2E87BDFF7FB6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{52A109A1-37DB-4AB0-BCA6-9B4A150E2E72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52A109A1-37DB-4AB0-BCA6-9B4A150E2E72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52A109A1-37DB-4AB0-BCA6-9B4A150E2E72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14E7E4B1-99FA-41C0-8754-2E87BDFF7FB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14E7E4B1-99FA-41C0-8754-2E87BDFF7FB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14E7E4B1-99FA-41C0-8754-2E87BDFF7FB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14E7E4B1-99FA-41C0-8754-2E87BDFF7FB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
