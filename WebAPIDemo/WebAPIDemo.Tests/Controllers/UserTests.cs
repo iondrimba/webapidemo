@@ -1,10 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Hosting;
+using System.Web.Http.Results;
 using System.Web.Http.Routing;
 using WebAPIDemo.Controllers;
 using WebAPIDemo.Models;
@@ -31,40 +30,21 @@ namespace WebAPIDemo.Tests.Controllers
         public void TestGet()
         {
             UserController controller = new UserController();
+            controller = SetupRequest(controller) as UserController;
+            var result = controller.Get().Result;
 
-            IEnumerable<IAppUser> result = controller.Get();
-
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
-        public void TestGetCount()
-        {
-            UserController controller = new UserController();
-
-            IList<IAppUser> result = controller.Get();
-
-            Assert.AreEqual(result.Count, collection.Count);
+            Assert.IsInstanceOfType(result, typeof(System.Web.Http.Results.OkNegotiatedContentResult<IList<IAppUser>>));
         }
 
         [TestMethod]
         public void TestGetById()
         {
             UserController controller = new UserController();
+            controller = SetupRequest(controller) as UserController;
+            var result = controller.Get(1).Result;
+            IAppUser user = ((OkNegotiatedContentResult<IAppUser>)result).Content as IAppUser;
 
-            IAppUser result = controller.Get(1);
-
-            Assert.AreEqual(result.Id, collection[0].Id);
-        }
-
-        [TestMethod]
-        public void TestGetByIdNotFound()
-        {
-            UserController controller = new UserController();
-
-            IAppUser result = controller.Get(10);
-
-            Assert.IsNull(result);
+            Assert.AreEqual(user.Id, collection[0].Id);
         }
 
         [TestMethod]
@@ -74,9 +54,11 @@ namespace WebAPIDemo.Tests.Controllers
             int currentCout = collection.Count;
 
             IAppUser newUser = new AppUserBase { Name = "User4", Email = "user4@demo.com", Id = 4 };
-            IAppUser result = controller.Post(newUser);
+            var result = controller.Post(newUser).Result as CreatedNegotiatedContentResult<IAppUser>;
+            IAppUser user = result.Content as IAppUser;
 
-            Assert.AreEqual(result, newUser);
+            Assert.AreEqual(user, newUser);
+            Assert.AreEqual("api/User/1", result.Location.OriginalString);
             Assert.AreNotEqual(currentCout, UserController.DataSource);
         }
 
@@ -84,13 +66,16 @@ namespace WebAPIDemo.Tests.Controllers
         public void TestUpdateAppUser()
         {
             UserController controller = new UserController();
+            controller = SetupRequest(controller) as UserController;
+            var result = controller.Get(1).Result;
+            IAppUser user = ((OkNegotiatedContentResult<IAppUser>)result).Content as IAppUser;
+            user.Name = "user1NameUpdated";
 
-            IAppUser user = controller.Get(1);
-            user.Name = "user1Updated";
-
-            IAppUser userUpdated = controller.Put(user);
+            var resultUpdated = controller.Put(user).Result;
+            IAppUser userUpdated = ((OkNegotiatedContentResult<IAppUser>)result).Content as IAppUser;
 
             Assert.AreEqual(user.Name, userUpdated.Name);
+            Assert.IsInstanceOfType(result, typeof(System.Web.Http.Results.OkNegotiatedContentResult<IAppUser>));
         }
 
         [TestMethod]
@@ -98,69 +83,33 @@ namespace WebAPIDemo.Tests.Controllers
         {
             UserController controller = new UserController();
             int currentCout = collection.Count;
-            IList<IAppUser> result = controller.Delete(1);
-            Assert.AreNotEqual(currentCout, result.Count);
+            var result = controller.Delete(1).Result;
+
+            IList<IAppUser> col = ((OkNegotiatedContentResult<IList<IAppUser>>)result).Content as IList<IAppUser>;
+            Assert.AreNotEqual(currentCout, col.Count);
         }
 
         [TestMethod]
-        public void TestGetHttpResponseMessageOK()
+        public void TestUserNotFound()
         {
             UserController controller = new UserController();
-            controller = SetupRequest(controller) as UserController;
-            var result = controller.All().Result;
-
-            Assert.IsInstanceOfType(result, typeof(System.Web.Http.Results.OkNegotiatedContentResult<IList<IAppUser>>));
-        }
-
-        [TestMethod]
-        public void TestGetHttpResponseMessageNotFound()
-        {
-            UserController controller = new UserController();
-            controller = SetupRequest(controller) as UserController;
-
-            var result = controller.ById(10).Result;
+            int currentCout = collection.Count;
+            var result = controller.Get(10).Result;
 
             Assert.IsInstanceOfType(result, typeof(System.Web.Http.Results.NotFoundResult));
         }
 
         [TestMethod]
-        public void TestGetHttpResponseMessageRawOK()
+        public void TestForBadRequest()
         {
             UserController controller = new UserController();
-            controller = SetupRequest(controller) as UserController;
+            int currentCout = collection.Count;
+            var result = controller.BadRequest(11).Result as BadRequestErrorMessageResult;
+            Assert.IsInstanceOfType(result, typeof(System.Web.Http.Results.BadRequestErrorMessageResult));
 
-            var result = controller.GetRawOKAsync().Result;
-
-            Assert.AreEqual(result.StatusCode, HttpStatusCode.OK);
+            string message = string.Format("Something went wrong on the request for user {0}", 11);
+            Assert.AreEqual(result.Message, message);
         }
-
-        [TestMethod]
-        public void TestGetHttpResponseMessageRawNotFound()
-        {
-            UserController controller = new UserController();
-            controller = SetupRequest(controller) as UserController;
-
-            var result = controller.GetRawNotFoundAsync(10).Result;
-
-            Assert.AreEqual(result.StatusCode, HttpStatusCode.NotFound);
-        }
-
-
-        [TestMethod]
-        public void TestGetHttpResponseMessageCustomException()
-        {
-            UserController controller = new UserController();
-            controller = SetupRequest(controller) as UserController;
-
-            var result = controller.GetRawExceptionAsync().Result;
-            string content = result.Content.ReadAsStringAsync().Result;
-            HttpError error = JsonConvert.DeserializeObject<HttpError>(content);
-
-            Assert.AreEqual(result.StatusCode, HttpStatusCode.BadRequest);
-            Assert.AreEqual(error.Message, "Sample exception");
-        }
-
-
 
         private ApiController SetupRequest(ApiController controller)
         {

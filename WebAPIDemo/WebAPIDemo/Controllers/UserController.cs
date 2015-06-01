@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using WebAPIDemo.Models;
@@ -29,44 +26,35 @@ namespace WebAPIDemo.Controllers
             UserController.DataSource = _dataSource;
         }
 
-        // GET: api/User
-        public IList<IAppUser> Get()
-        {
-            return _dataSource;
-        }
-
-        // GET: api/User/5
-        public IAppUser Get(int id)
-        {
-            IAppUser user = _dataSource.Where(p => p.Id == id).FirstOrDefault();
-            return user;
-        }
-
         // POST: api/User
-        public IAppUser Post(IAppUser user)
+        public async Task<IHttpActionResult> Post(IAppUser user)
         {
-            _dataSource.Add(user);
-
-            return user;
+            await Task.Delay(1000);
+            string location = "api/User/1";
+            return Created(location, user);
         }
 
         // PUT: api/User/5
-        public IAppUser Put(IAppUser user)
+        public async Task<IHttpActionResult> Put(IAppUser user)
         {
-            return user;
+            await Task.Delay(1000);
+
+            return Ok(user);
         }
 
         // DELETE: api/User/5
-        public IList<IAppUser> Delete(int id)
+        public async Task<IHttpActionResult> Delete(int id)
         {
+            await Task.Delay(1000);
+
             IAppUser user = _dataSource.Where(p => p.Id == id).FirstOrDefault();
             _dataSource.Remove(user);
 
-            return _dataSource;
+            return Ok(_dataSource);
         }
 
         [HttpGet]
-        public async Task<IHttpActionResult> All()
+        public async Task<IHttpActionResult> Get()
         {
             await Task.Delay(1000);
 
@@ -74,7 +62,7 @@ namespace WebAPIDemo.Controllers
         }
 
         [HttpGet]
-        public async Task<IHttpActionResult> ById(int id)
+        public async Task<IHttpActionResult> Get(int id)
         {
             await Task.Delay(1000);
 
@@ -88,46 +76,20 @@ namespace WebAPIDemo.Controllers
             return Ok(user);
         }
 
-        public async Task<HttpResponseMessage> GetRawOKAsync()
-        {
-            await Task.Delay(1000);
-
-            var result = Request.CreateResponse(HttpStatusCode.OK, _dataSource);
-
-            return result;
-        }
-
-        public async Task<HttpResponseMessage> GetRawNotFoundAsync(int id)
+        [HttpGet]
+        public async Task<IHttpActionResult> BadRequest(int id)
         {
             await Task.Delay(1000);
 
             IAppUser user = _dataSource.Where(p => p.Id == id).FirstOrDefault();
-            var result = Request.CreateResponse(HttpStatusCode.OK, _dataSource);
 
             if (user == null)
             {
-                result = new HttpResponseMessage(HttpStatusCode.NotFound)
-                {
-                    Content = new StringContent(string.Empty),
-                    ReasonPhrase = "Nenhum Item encontrado"
-                };
+                string message = string.Format("Something went wrong on the request for user {0}", id);
+                return BadRequest(message);
             }
 
-            return result;
-        }
-
-        public async Task<HttpResponseMessage> GetRawExceptionAsync()
-        {
-            await Task.Delay(1000);
-
-            try
-            {
-                throw new Exception("Sample exception");
-            }
-            catch (System.Exception ex)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
-            }
+            return Ok(user);
         }
     }
 }
