@@ -30,6 +30,20 @@
             }
         }
 
+        private string _picture;
+
+        public string Picture
+        {
+            get
+            {
+                return _picture;
+            }
+            set
+            {
+                _picture = value;
+            }
+        }
+
         private int _Id;
 
         public int Id

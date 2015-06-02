@@ -7,5 +7,7 @@
         string Email { get; set; }
 
         int Id { get; set; }
+
+        string Picture { get; set; }
     }
 }

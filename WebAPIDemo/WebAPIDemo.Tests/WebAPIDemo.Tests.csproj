@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
+    <Content Include="Upload\user1.gif" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebAPIDemo\WebAPIDemo.csproj">

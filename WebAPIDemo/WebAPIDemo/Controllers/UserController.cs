@@ -1,6 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using WebAPIDemo.Models;
 
@@ -53,7 +59,6 @@ namespace WebAPIDemo.Controllers
             return Ok(_dataSource);
         }
 
-        [HttpGet]
         public async Task<IHttpActionResult> Get()
         {
             await Task.Delay(1000);
@@ -61,7 +66,6 @@ namespace WebAPIDemo.Controllers
             return Ok(_dataSource);
         }
 
-        [HttpGet]
         public async Task<IHttpActionResult> Get(int id)
         {
             await Task.Delay(1000);
@@ -76,8 +80,7 @@ namespace WebAPIDemo.Controllers
             return Ok(user);
         }
 
-        [HttpGet]
-        public async Task<IHttpActionResult> BadRequest(int id)
+        public async Task<IHttpActionResult> GetBadRequest(int id)
         {
             await Task.Delay(1000);
 
@@ -90,6 +93,32 @@ namespace WebAPIDemo.Controllers
             }
 
             return Ok(user);
+        }
+
+        public async Task<HttpResponseMessage> GetPicture(int id)
+        {
+            await Task.Delay(1000);
+
+            IAppUser user = _dataSource.Where(p => p.Id == id).FirstOrDefault();
+
+            string path = "~/Upload/";
+            string file = string.Format("user{0}.gif", user.Id);
+
+            //string picturePath = HttpContext.Current.Server.MapPath(path);
+
+            var baseDir = Path.GetDirectoryName(System.AppDomain.CurrentDomain.BaseDirectory);
+            var pa =baseDir.Replace(@"bin", "Upload");
+            var testFile = Path.Combine(pa, file);
+
+            var info = System.IO.File.GetAttributes(testFile);
+            var result = Request.CreateResponse(HttpStatusCode.OK);
+            result.Content = new StreamContent(new FileStream(testFile, FileMode.Open, FileAccess.Read));
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+            result.Content.Headers.Add("x-filename", testFile);
+            result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
+            result.Content.Headers.ContentDisposition.FileName = file;
+
+            return result;
         }
     }
 }

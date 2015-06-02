@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Hosting;
 using System.Web.Http.Results;
@@ -90,6 +91,18 @@ namespace WebAPIDemo.Tests.Controllers
         }
 
         [TestMethod]
+        public void TestUserPicture()
+        {
+            UserController controller = new UserController();
+            controller = SetupRequest(controller) as UserController;
+            int currentCout = collection.Count;
+            var result = controller.GetPicture(1).Result;           
+
+            string picture = "user1.gif";
+            Assert.AreEqual(picture, result.Content.Headers.ContentDisposition.FileName);
+        }
+
+        [TestMethod]
         public void TestUserNotFound()
         {
             UserController controller = new UserController();
@@ -104,7 +117,7 @@ namespace WebAPIDemo.Tests.Controllers
         {
             UserController controller = new UserController();
             int currentCout = collection.Count;
-            var result = controller.BadRequest(11).Result as BadRequestErrorMessageResult;
+            var result = controller.GetBadRequest(11).Result as BadRequestErrorMessageResult;
             Assert.IsInstanceOfType(result, typeof(System.Web.Http.Results.BadRequestErrorMessageResult));
 
             string message = string.Format("Something went wrong on the request for user {0}", 11);
@@ -119,6 +132,8 @@ namespace WebAPIDemo.Tests.Controllers
             routeTemplate: "api/{controller}/{id}",
             defaults: new { id = RouteParameter.Optional });
             var routeData = new HttpRouteData(route, new HttpRouteValueDictionary { { "controller", "Issues" } });
+
+            HttpContext.Current = new HttpContext(new HttpRequest(null, "http://tempuri.org", null),new HttpResponse(null));
 
             controller.Request = new HttpRequestMessage(HttpMethod.Post, "http://test.com/issues");
             controller.Request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, controller.Configuration);
